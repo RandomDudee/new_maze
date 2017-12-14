@@ -2,10 +2,7 @@ module Grid exposing (..)
 
 import Array exposing (Array)
 import Html exposing (Html, div, text)
-
-
-type alias Position =
-    (Int, Int)
+import Position exposing (..)
 
 
 type alias Grid a =
@@ -17,7 +14,7 @@ main =
     let
         grid =
             create 4 6 0
-                |> indexedMap (\x y a -> ( x, y ))
+                |> indexedMap (\pos a -> ( pos ))
     in
         text <| toString grid
 
