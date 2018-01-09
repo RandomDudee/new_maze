@@ -56,10 +56,6 @@ drawLineyMaze maze =
         height =
             maze.height
 
-        fn : ( Position, Maze ) -> List (S.Svg a)
-        fn ( position, maze ) =
-            drawCell scale position maze
-
         viewWidth =
             width
                 * scale
@@ -79,8 +75,14 @@ drawLineyMaze maze =
         asHtml : List (S.Svg msg) -> Html msg
         asHtml svgMsgs =
             S.svg [ SA.width viewWidth, SA.height viewHeight, SA.viewBox viewbox ] svgMsgs
+
+        allPositions : List Position
+        allPositions = Maze.allPositions maze
+
+        cellBoundaries: List (S.Svg msg)
+        cellBoundaries = (List.map (drawCell scale maze) allPositions) |> List.concat
     in
-        drawBoundary scale width height
+        (drawBoundary scale width height) ++ cellBoundaries
             |> asHtml
 
 
@@ -96,8 +98,8 @@ drawBoundary scale width height =
         [ drawWall { x = 0, y = 0 } { x = 0, y = actualHeight }, drawWall { x = 0, y = actualHeight } { x = actualWidth, y = actualHeight } ]
 
 
-drawCell : Int -> Position -> Maze -> List (S.Svg msg)
-drawCell scale position maze =
+drawCell : Int -> Maze -> Position -> List (S.Svg msg)
+drawCell scale maze position  =
     let
         coordinateOfCell =
             asCoordinate position scale

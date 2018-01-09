@@ -3,6 +3,7 @@ module Maze exposing (..)
 import Grid exposing (Grid)
 import Types exposing (Boundary(..))
 import Position exposing (Position, Direction(..))
+import List.Extra
 
 type alias Maze =
   { width: Int
@@ -45,3 +46,11 @@ getBoundary dir pos maze =
     getGrid dir maze
     |> Grid.get (convertPos dir pos)
     |> Maybe.withDefault Wall
+
+allPositions : Maze -> List Position
+allPositions maze =
+  let
+    xs = List.range 0 (maze.width - 1)
+    ys = List.range 0 (maze.height - 1)
+  in
+    List.Extra.lift2 (\x y -> (x,y) ) xs ys

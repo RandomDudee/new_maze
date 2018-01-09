@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import View
 import Maze exposing (Maze)
 import Html exposing (Html)
 
@@ -8,11 +9,11 @@ main =
 
 model : Maze
 model =
-  Maze.create 10 5
+  Maze.create 22 15
 
 view : Maze -> Html a
 view maze =
-  Html.text "Hello"
+  View.view maze
 
 update : a -> Maze -> Maze
 update msg maze = maze
