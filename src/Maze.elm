@@ -19,20 +19,29 @@ create w h =
       , vertical = Grid.create (w + 1) h Wall
       , horizontal = Grid.create w (h + 1)  Wall}
 
-getBoundary : Maze -> Position -> Direction -> Boundary
-getBoundary maze pos dir =
+getBoundary : Direction -> Position -> Maze -> Boundary
+getBoundary dir pos maze =
   let
-    myGrid = getGrid maze dir
+    convertPos : Direction -> Position -> Position
+    convertPos dir (x,y) =
+      case dir of
+        North ->
+          (x,y+1)
+        South ->
+          (x,y)
+        East ->
+          (x+1, y)
+        West ->
+          (x,y)
 
+    getGrid : Direction -> Maze -> Grid Boundary
+    getGrid dir maze =
+      case dir of
+        North -> maze.horizontal
+        South -> maze.horizontal
+        East -> maze.vertical
+        West -> maze.vertical
   in
-    Grid.get pos myGrid
+    getGrid dir maze
+    |> Grid.get (convertPos dir pos)
     |> Maybe.withDefault Wall
-      
-
-getGrid : Maze -> Direction -> Grid Boundary
-getGrid maze dir =
-  case dir of
-    North -> maze.horizontal
-    South -> maze.horizontal
-    East -> maze.vertical
-    West -> maze.vertical
