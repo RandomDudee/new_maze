@@ -8,7 +8,7 @@ import List exposing (concat)
 import Maze exposing (Maze)
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
-import Position exposing (Direction(..), Position, Transformer, scaleBy)
+import Position exposing (Direction(..), Position, Transformer, scaleBy, mirrorVertical)
 import Types exposing (Boundary(..))
 
 
@@ -68,11 +68,11 @@ drawLineyMaze maze =
 
         vertWalls =
             Maze.allVerticalWalls maze
-                |> List.map (drawVerticalWall (scaleBy scale))
+                |> List.map (drawVerticalWall (mirrorVertical height >> scaleBy scale))
 
         horizWalls =
             Maze.allHorizontalWalls maze
-                |> List.map (drawHorizontalWall (scaleBy scale))
+                |> List.map (drawHorizontalWall (mirrorVertical height >> scaleBy scale))
     in
         (vertWalls ++ horizWalls)
             |> asHtml

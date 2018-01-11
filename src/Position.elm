@@ -44,3 +44,8 @@ scaleBy scale ( x, y ) =
 translate : Int -> Int -> Transformer
 translate xoffset yoffset ( x, y ) =
     ( x + xoffset, y + yoffset )
+
+
+mirrorVertical : Int -> Transformer
+mirrorVertical maxY ( x, y ) =
+    ( x, maxY - y )

@@ -3,6 +3,7 @@ module Main exposing (main)
 import View
 import Maze exposing (Maze)
 import Html exposing (Html)
+import BinaryTree
 
 
 main =
@@ -11,7 +12,7 @@ main =
 
 model : Maze
 model =
-    Maze.create 22 15
+    BinaryTree.buildRandomMaze 22 25 1
 
 
 view : Maze -> Html a
