@@ -28,24 +28,14 @@ view : Maze -> Html msg
 view maze =
     div [] [ div [ mainContainer ] [ drawLineyMaze maze ] ]
 
-drawNorthWall : Int -> Coordinate -> S.Svg msg
-drawNorthWall scale { x, y } =
-    drawWall { x = x, y = y } { x = x + scale, y = y }
 
-
-drawEastWall : Int -> Coordinate -> S.Svg msg
-drawEastWall scale { x, y } =
-    drawWall { x = x + scale, y = y } { x = x + scale, y = y + scale }
-
-
-drawWall : Coordinate -> Coordinate -> S.Svg msg
-drawWall c1 c2 =
-    S.line [ SA.x1 (toString c1.x), SA.y1 (toString c1.y), SA.x2 (toString c2.x), SA.y2 (toString c2.y), SA.style "stroke:rgb(255,0,0);stroke-width:2" ] []
+drawWall : Position -> Position -> S.Svg msg
+drawWall ( x1, y1 ) ( x2, y2 ) =
+    S.line [ SA.x1 (toString x1), SA.y1 (toString y1), SA.x2 (toString x2), SA.y2 (toString y2), SA.style "stroke:rgb(255,0,0);stroke-width:2" ] []
 
 
 drawLineyMaze : Maze -> Html msg
 drawLineyMaze maze =
-    --turn maze into grid of cell and position using indexedMap
     let
         scale =
             40
@@ -76,64 +66,37 @@ drawLineyMaze maze =
         asHtml svgMsgs =
             S.svg [ SA.width viewWidth, SA.height viewHeight, SA.viewBox viewbox ] svgMsgs
 
-        allPositions : List Position
-        allPositions = Maze.allPositions maze
+        vertWalls =
+            Maze.allVerticalWalls maze
+                |> List.map (drawVerticalWall (scaleBy scale))
 
-        cellBoundaries: List (S.Svg msg)
-        cellBoundaries = (List.map (drawCell scale maze) allPositions) |> List.concat
+        horizWalls =
+            Maze.allHorizontalWalls maze
+                |> List.map (drawHorizontalWall (scaleBy scale))
     in
-        (drawBoundary scale width height) ++ cellBoundaries
+        (vertWalls ++ horizWalls)
             |> asHtml
 
 
-drawBoundary : Int -> Int -> Int -> List (S.Svg msg)
-drawBoundary scale width height =
-    let
-        actualHeight =
-            scale * height
-
-        actualWidth =
-            scale * width
-    in
-        [ drawWall { x = 0, y = 0 } { x = 0, y = actualHeight }, drawWall { x = 0, y = actualHeight } { x = actualWidth, y = actualHeight } ]
+type alias Transformer =
+    Position -> Position
 
 
-drawCell : Int -> Maze -> Position -> List (S.Svg msg)
-drawCell scale maze position  =
-    let
-        coordinateOfCell =
-            asCoordinate position scale
-
-        isNorthWall =
-            Maze.getBoundary North position maze == Wall
-
-        isEastWall =
-            Maze.getBoundary East position maze == Wall
-
-        drawNorthWithScaleAndCoords =
-            drawNorthWall scale coordinateOfCell
-
-        drawEastWithScaleAndCoords =
-            drawEastWall scale coordinateOfCell
-    in
-        case ( isNorthWall, isEastWall ) of
-            ( True, True ) ->
-                [ drawNorthWithScaleAndCoords, drawEastWithScaleAndCoords ]
-
-            ( True, False ) ->
-                [ drawNorthWithScaleAndCoords ]
-
-            ( False, True ) ->
-                [ drawEastWithScaleAndCoords ]
-
-            ( False, False ) ->
-                []
+scaleBy : Int -> Transformer
+scaleBy scale ( x, y ) =
+    ( x * scale, y * scale )
 
 
-type alias Coordinate =
-    { x : Int, y : Int }
+translate : Int -> Int -> Transformer
+translate xoffset yoffset ( x, y ) =
+    ( x + xoffset, y + yoffset )
 
 
-asCoordinate : Position -> Int -> Coordinate
-asCoordinate ( x, y ) scale =
-    { x = x * scale, y = y * scale }
+drawHorizontalWall : Transformer -> Position -> S.Svg msg
+drawHorizontalWall transform ( x, y ) =
+    drawWall (transform ( x, y )) (transform ( x + 1, y ))
+
+
+drawVerticalWall : Transformer -> Position -> S.Svg msg
+drawVerticalWall transform ( x, y ) =
+    drawWall (transform ( x, y )) (transform ( x, y + 1 ))

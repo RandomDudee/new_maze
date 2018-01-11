@@ -3,6 +3,8 @@ module Grid exposing (..)
 import Array exposing (Array)
 import Html exposing (Html, div, text)
 import Position exposing (..)
+import Maybe.Extra
+import Tuple
 
 
 type alias Grid a =
@@ -14,7 +16,9 @@ main =
     let
         grid =
             create 4 6 0
-                |> indexedMap (\pos a -> ( pos ))
+                |> indexedMap (\pos a -> pos)
+                |> filterPositions (\pos -> (Tuple.first pos) > 2 || (Tuple.second pos) > 3)
+                |> List.map (\tup -> Tuple.first tup)
     in
         text <| toString grid
 
@@ -95,4 +99,18 @@ map fn gd =
 
 indexedMap : (Position -> a -> b) -> Grid a -> Grid b
 indexedMap fn gd =
-    Array.indexedMap (\rownum x -> Array.indexedMap (\colnum y -> fn ( rownum, colnum ) y) x) gd
+    Array.indexedMap (\gx ys -> Array.indexedMap (\gy value -> fn ( gx, gy ) value) ys) gd
+
+
+filterPositions : (a -> Bool) -> Grid a -> List ( Position, a )
+filterPositions fn gd =
+    indexedMap
+        (\pos value ->
+            if (fn value) then
+                Just ( pos, value )
+            else
+                Nothing
+        )
+        gd
+        |> toList
+        |> Maybe.Extra.values
