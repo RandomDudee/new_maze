@@ -1,9 +1,10 @@
 module BinaryTree exposing (buildRandomMaze)
 
-import Maze exposing(Maze)
+import Maze exposing(Maze, createCell, allPositions)
 import Array
 import Random exposing (Generator)
 import Position exposing (Direction(..))
+import Grid exposing (Grid)
 
 buildRandomMaze : Int -> Int -> Int -> Maze
 buildRandomMaze width height seedInt =
@@ -16,8 +17,10 @@ buildRandomMaze width height seedInt =
 
         ( directions, newSeed ) =
             Random.step generator seed
+        initialMaze = Maze.create width height
+        listOfPostions = allPositions initialMaze
     in
-        Maze.create width height
+        List.foldl (Maze.createCell (Array.fromList directions) width) initialMaze listOfPostions
 
 makeSeed : Int -> Random.Seed
 makeSeed int =
